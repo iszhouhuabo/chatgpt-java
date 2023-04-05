@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Configuration
 @ConfigurationProperties(prefix = "system")
 public class SystemConfig {
-    private String content = "Louye-ChatGPT【chatools.online】";
+    private String content = "Louye-ChatGPT";
     private String auth = "louyezhou";
     private String freeApiKey;
     private String notAuthContent;
