@@ -1,0 +1,74 @@
+buildscript {
+    project.ext {
+        bootVersion = '2.0.4.RELEASE'
+    }
+
+
+    repositories {
+        maven {
+            url "https://maven.aliyun.com/repository/central/"
+        }
+    }
+
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${project.bootVersion}"
+        classpath "org.springframework.cloud:spring-cloud-contract-gradle-plugin:2.0.1.RELEASE"
+        classpath "org.flywaydb:flyway-gradle-plugin:5.0.7"
+    }
+}
+apply plugin: "java"
+apply plugin: "idea"
+apply plugin: "org.springframework.boot"
+apply plugin: "io.spring.dependency-management"
+apply plugin: "groovy"
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'jacoco'
+
+group 'cn.dr-vs'
+
+repositories {
+    maven {
+        url "https://maven.aliyun.com/repository/central/"
+    }
+}
+
+sourceCompatibility = 11
+
+ext {
+    springCloudVersion = 'Finchley.SR1'
+}
+
+dependencies {
+    compile('org.jsoup:jsoup:1.15.3')
+    compile('cn.hutool:hutool-all:5.8.11')
+    compile('org.springframework.boot:spring-boot-starter')
+    compile('org.springframework.boot:spring-boot-starter-websocket')
+    compile('org.springframework.boot:spring-boot-starter-web')
+
+    compile('org.springframework.boot:spring-boot-devtools')
+    compile('org.springframework.cloud:spring-cloud-starter-config')
+    compile('org.json:json:20220320')
+    compile('io.jsonwebtoken:jjwt:0.9.0')
+    compile('com.alibaba:fastjson:1.2.67_noneautotype2')
+    compile 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    implementation("com.google.guava:guava:31.1-jre")
+    compile 'commons-io:commons-io:2.7'
+    compile 'org.apache.commons:commons-lang3:3.7'
+
+    implementation "org.projectlombok:lombok:1.18.16"
+
+    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+
+}
+ext {
+    springCloudVersion = 'Finchley.SR1'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
