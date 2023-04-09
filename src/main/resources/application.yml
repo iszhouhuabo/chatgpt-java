@@ -17,12 +17,17 @@ openai:
   # 余额查询的API
   credit_api: https://api.openai.com/dashboard/billing/credit_grants
   # ${名称:值} 格式以便于在环境变量中配置，默认只需修改值即可
-  isFreeEnable: ${FREE_ENABLE:0}
+  free_enable: ${FREE_ENABLE:0}
 
 system:
-  freeApiKey: ${FREE_API_KEY:}
-  notAuthContent: ${NO_AUTH_CONTENT:apikey无效}
-  use_proxy: true
-  proxy:
-    http: ${PROXY_HTTP:}
-    apiKey: ${PROXY_API_KEY:}
+  # 存放Key的地方
+  key_file: ${KEY_FILE:./api.txt}
+  # 系统内置的共享 key
+  free_api_key: ${FREE_API_KEY:}
+  # 请求是否转发到其他服务器
+  use_forward: ${USE_FORWARD:false}
+  forward:
+    # 需要转发的地址
+    http: ${FORWARD_HTTP:}
+    # 转发需要的 KEY
+    api_key: ${FORWARD_API_KEY:}
