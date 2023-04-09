@@ -16,10 +16,9 @@ openai:
   image_api: https://api.openai.com/v1/images/generations
   # 余额查询的API
   credit_api: https://api.openai.com/dashboard/billing/credit_grants
-  # ${名称:值} 格式以便于在环境变量中配置，默认只需修改值即可
-  free_enable: ${FREE_ENABLE:0}
 
 system:
+  free_enable: ${FREE_ENABLE:false}
   # 存放Key的地方
   key_file: ${KEY_FILE:./api.txt}
   # 系统内置的共享 key
