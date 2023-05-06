@@ -27,8 +27,8 @@
 ### `Docker` 部署
 
 ```aidl
-# 构建项目
-./gradlew clean build
+// 构建项目
+gradlew clean build
 ```
 
 ```shell
