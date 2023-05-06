@@ -44,9 +44,7 @@ public class ChatSseService {
             LocalCache.CACHE.remove(uid);
         });
         //超时回调
-        sseEmitter.onTimeout(() -> {
-            log.info("[{}]连接超时...................", uid);
-        });
+        sseEmitter.onTimeout(() -> log.info("[{}]连接超时...................", uid));
         //异常回调
         sseEmitter.onError(
                 throwable -> {
