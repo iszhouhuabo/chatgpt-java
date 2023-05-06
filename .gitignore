@@ -13,3 +13,5 @@ buildNumber.properties
 /.gradle
 /.idea
 /build
+rebel.xml
+/logs/
