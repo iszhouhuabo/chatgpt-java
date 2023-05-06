@@ -1,4 +1,4 @@
-package online.chatools.domain.openai;
+package com.github.iszhouhuabo.domain.openai;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.unfbx.chatgpt.entity.common.Usage;

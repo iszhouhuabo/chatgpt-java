@@ -1,4 +1,4 @@
-package online.chatools;
+package com.github.iszhouhuabo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

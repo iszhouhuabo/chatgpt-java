@@ -13,47 +13,28 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package online.chatools.domain;
+package com.github.iszhouhuabo.domain;
 
-import cn.hutool.core.collection.ListUtil;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Random;
 
+/**
+ * gpt 相关配置
+ *
+ * @author louye
+ */
 @Data
 @Component
 @Configuration
-@ConfigurationProperties(prefix = "openai")
-public class OpenAiConfig {
-
-    private String keys;
-
+@ConfigurationProperties(prefix = "chatgpt")
+public class ChatGptConfig {
+    private List<String> apiKey;
     private String model;
-
     private Integer maxTokens;
-
     private Double temperature;
-
-    private String openaiApi;
-
-    private String imageApi;
-
-    private String creditApi;
-    public String getApiKey() {
-        // 转为 List
-        List<String> keyList = ListUtil.toList(keys.split(","));
-        if(keyList.size() == 1){
-            return keyList.get(0);
-        }
-        // 打乱顺序
-        Random random = new Random();
-        // 获取0~list.size()之间的随机数
-        int index = random.nextInt(keyList.size());
-        // 获取一个 key
-        return keyList.get(index);
-    }
+    private String apiHost;
 }

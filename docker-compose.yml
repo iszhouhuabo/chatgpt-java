@@ -2,7 +2,7 @@ version: '3'
 
 services:
   chatgpt-java:
-    image: zhouhuabo/chatgpt-java:v1
+    image: zhouhuabo/chatgpt-java:v1.1
     container_name: chatgpt-java
     ports:
       - 8000:18080

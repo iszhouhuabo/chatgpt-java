@@ -1,7 +1,8 @@
 server:
   port: 18080
 
-openai:
+# chatgpt 设置
+chatgpt:
   # 默认的Token长度
   max_tokens: ${MAX_TOKENS:512}
   # 尝试将值设为 0.9 以获得更有创意的回复，将值设为 0 以获得具有明确答案的回复
@@ -9,24 +10,13 @@ openai:
   # 默认的AI模型，gpt-3.5-turbo or gpt-3.5-turbo-0301	，区别：https://platform.openai.com/docs/models/gpt-3-5
   model: gpt-3.5-turbo
   # 多个Key用,分割
-  keys: ${KEYS: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}
-  # 综合问答API
-  openai_api: https://api.openai.com/v1/chat/completions
-  # 图片问答API
-  image_api: https://api.openai.com/v1/images/generations
-  # 余额查询的API
-  credit_api: https://api.openai.com/dashboard/billing/credit_grants
+  api_key: ${API_KEY:}
+  # 默认主机，如果代理的话，就配置代理的主机
+  api_host: https://api.openai.com/
 
+# 系统设置
 system:
-  free_enable: ${FREE_ENABLE:false}
-  # 存放Key的地方
-  key_file: ${KEY_FILE:./api.txt}
-  # 系统内置的共享 key
-  free_api_key: ${FREE_API_KEY:}
-  # 请求是否转发到其他服务器
-  use_forward: ${USE_FORWARD:false}
-  forward:
-    # 需要转发的地址
-    http: ${FORWARD_HTTP:}
-    # 转发需要的 KEY
-    api_key: ${FORWARD_API_KEY:}
+  # 默认携带上下文条数
+  context_num: ${CONTEXT_NUM:10}
+  # 是否使用内置 key
+  use_internal_key: ${USE_INTERNAL_KEY:true}

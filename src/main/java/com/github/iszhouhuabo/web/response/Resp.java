@@ -1,4 +1,4 @@
-package online.chatools.controllers.response;
+package com.github.iszhouhuabo.web.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
