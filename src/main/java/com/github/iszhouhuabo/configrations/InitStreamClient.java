@@ -34,7 +34,7 @@ public class InitStreamClient {
     @Bean
     public OkHttpClient okHttpClient() {
         HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor(new OpenAILogger());
-        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
         return new OkHttpClient
                 .Builder()
                 .addInterceptor(httpLoggingInterceptor)

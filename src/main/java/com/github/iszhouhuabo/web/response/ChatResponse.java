@@ -1,8 +1,10 @@
 package com.github.iszhouhuabo.web.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 描述：
@@ -12,6 +14,8 @@ import lombok.Data;
  */
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ChatResponse {
     /**
      * 问题消耗tokens

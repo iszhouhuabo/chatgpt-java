@@ -1,9 +1,6 @@
 package com.github.iszhouhuabo.services;
 
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import com.github.iszhouhuabo.configrations.LocalCache;
-import com.github.iszhouhuabo.domain.SystemConfig;
 import com.github.iszhouhuabo.listener.OpenAiChatStreamSseListener;
 import com.github.iszhouhuabo.web.request.ChatRequest;
 import com.github.iszhouhuabo.web.response.ChatResponse;
@@ -17,10 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.github.iszhouhuabo.domain.common.SystemDic.CACHE_KEY_MSG_PRE;
 
 /**
  * 通过 sse 实现交流
@@ -31,8 +24,6 @@ import static com.github.iszhouhuabo.domain.common.SystemDic.CACHE_KEY_MSG_PRE;
 @Slf4j
 @RequiredArgsConstructor
 public class ChatSseService {
-
-    private final SystemConfig systemConfig;
     private final OpenAiStreamClient openAiStreamClient;
 
     public SseEmitter createSse(String uid) {
@@ -40,11 +31,11 @@ public class ChatSseService {
         SseEmitter sseEmitter = new SseEmitter(0L);
         //完成后回调
         sseEmitter.onCompletion(() -> {
-            log.info("[{}]结束连接...................", uid);
+            log.info("[{}]结束连接...", uid);
             LocalCache.CACHE.remove(uid);
         });
         //超时回调
-        sseEmitter.onTimeout(() -> log.info("[{}]连接超时...................", uid));
+        sseEmitter.onTimeout(() -> log.info("[{}]连接超时...", uid));
         //异常回调
         sseEmitter.onError(
                 throwable -> {
@@ -82,33 +73,23 @@ public class ChatSseService {
     }
 
     public Resp sseChat(String uid, ChatRequest chatRequest) {
-        String messageContext = (String) LocalCache.CACHE.get(CACHE_KEY_MSG_PRE + uid);
-        List<Message> messages = new ArrayList<>();
-        if (StrUtil.isNotBlank(messageContext)) {
-            messages = JSONUtil.toList(messageContext, Message.class);
-            if (messages.size() >= systemConfig.getContextNum()) {
-                messages = messages.subList(1, systemConfig.getContextNum());
-            }
-            Message currentMessage = Message.builder().content(chatRequest.getMessage()).role(Message.Role.USER).build();
-            messages.add(currentMessage);
-        } else {
-            Message currentMessage = Message.builder().content(chatRequest.getMessage()).role(Message.Role.USER).build();
-            messages.add(currentMessage);
+        if (chatRequest.getMessage() == null || chatRequest.getMessage().isEmpty()) {
+            log.warn("聊天消息接收失败uid:[{}],消息为空，聊天失败。", uid);
+            throw new RuntimeException("消息为空, 聊天失败!");
         }
-
         SseEmitter sseEmitter = (SseEmitter) LocalCache.CACHE.get(uid);
         if (sseEmitter == null) {
             log.warn("聊天消息推送失败uid:[{}],没有创建连接，请重试。", uid);
-            return Resp.fail().msg("聊天连接未创建, 请先创建连接!");
+            throw new RuntimeException("聊天连接未创建, 请先创建连接!");
         }
-        OpenAiChatStreamSseListener openAiChatStreamSseListener = new OpenAiChatStreamSseListener(sseEmitter);
         ChatCompletion completion = ChatCompletion
                 .builder()
-                .messages(messages)
-                .model(ChatCompletion.Model.GPT_3_5_TURBO.getName())
+                .messages(chatRequest.getMessage())
+                .model(chatRequest.getModel())
+                .presencePenalty(chatRequest.getPresencePenalty())
+                .temperature(chatRequest.getTemperature())
                 .build();
-        openAiStreamClient.streamChatCompletion(completion, openAiChatStreamSseListener);
-        LocalCache.CACHE.put(CACHE_KEY_MSG_PRE + uid, JSONUtil.toJsonStr(messages), LocalCache.TIMEOUT);
-        return Resp.ok().data(ChatResponse.builder().questionTokens(completion.tokens()));
+        openAiStreamClient.streamChatCompletion(completion, new OpenAiChatStreamSseListener(sseEmitter));
+        return Resp.ok().data(ChatResponse.builder().questionTokens(completion.tokens()).build());
     }
 }

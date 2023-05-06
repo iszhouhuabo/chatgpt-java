@@ -14,28 +14,27 @@ import javax.validation.constraints.NotBlank;
  * @author louye
  */
 @RestController
-@RequestMapping("api/gpt")
+@RequestMapping("api/sse")
 @ResponseBody
 @RequiredArgsConstructor
 public class ChatGptController {
     private final ChatSseService sseService;
 
     @CrossOrigin
-    @GetMapping("/sse_create")
-    public SseEmitter createConnect(@RequestHeader @NotBlank String uid) {
+    @GetMapping("/create")
+    public SseEmitter createConnect(@RequestHeader @Validated @NotBlank String uid) {
         return sseService.createSse(uid);
     }
 
     @CrossOrigin
-    @GetMapping("/sse_close")
-    public Resp closeConnect(@RequestHeader @NotBlank String uid) {
+    @GetMapping("/close")
+    public Resp closeConnect(@RequestHeader @Validated @NotBlank String uid) {
         return sseService.closeSse(uid);
     }
 
     @CrossOrigin
-    @PostMapping("/sse_chat")
-    @ResponseBody
-    public Resp sseChat(@RequestBody @Validated ChatRequest chatRequest, @NotBlank String uid) {
+    @PostMapping("/chat")
+    public Resp sseChat(@RequestBody @Validated ChatRequest chatRequest, @RequestHeader @Validated @NotBlank String uid) {
         return sseService.sseChat(uid, chatRequest);
     }
 
