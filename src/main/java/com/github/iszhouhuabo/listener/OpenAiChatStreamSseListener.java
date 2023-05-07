@@ -49,7 +49,7 @@ public class OpenAiChatStreamSseListener extends EventSourceListener {
         if (GPT_MSG_END.equals(data)) {
             sseEmitter.send(SseEmitter.event()
                     .id("[TOKENS]")
-                    .data("<br/><br/>tokens：" + tokens())
+                    .data(tokens())
                     .reconnectTime(3000));
             sseEmitter.send(SseEmitter.event()
                     .id(GPT_MSG_END)

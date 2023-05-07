@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -14,9 +15,9 @@ import java.util.List;
 @Setter
 @Getter
 public class ChatRequest {
-    @JsonProperty("your_api_key")
+    @JsonProperty("api_key")
     private String apiKey;
-    @NotBlank(message = "聊天消息不能空")
+    @NotNull(message = "聊天消息不能空")
     private List<Message> message;
     @NotBlank(message = "聊天模型不能为空!")
     private String model;
