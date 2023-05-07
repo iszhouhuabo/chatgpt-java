@@ -15,6 +15,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 
+import static com.unfbx.chatgpt.entity.chat.Message.Role.ASSISTANT;
+
 /**
  * 通过 sse 实现交流
  *
@@ -44,7 +46,7 @@ public class ChatSseService {
                         sseEmitter.send(SseEmitter.event()
                                 .id(uid)
                                 .name("发生异常！")
-                                .data(Message.builder().content("发生异常请重试！").build())
+                                .data(Message.builder().content("发生异常请重试！").role(ASSISTANT).build())
                                 .reconnectTime(3000));
                         LocalCache.CACHE.put(uid, sseEmitter);
                     } catch (IOException e) {
@@ -80,7 +82,7 @@ public class ChatSseService {
         SseEmitter sseEmitter = (SseEmitter) LocalCache.CACHE.get(uid);
         if (sseEmitter == null) {
             log.warn("聊天消息推送失败uid:[{}],没有创建连接，请重试。", uid);
-            throw new RuntimeException("聊天连接未创建, 请先创建连接!");
+            throw new RuntimeException("[000500]聊天发生异常，刷新后重试!");
         }
         ChatCompletion completion = ChatCompletion
                 .builder()
