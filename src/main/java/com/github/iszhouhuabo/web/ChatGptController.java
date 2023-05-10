@@ -22,19 +22,20 @@ public class ChatGptController {
 
     @CrossOrigin
     @GetMapping("/create")
-    public SseEmitter createConnect(@RequestHeader @Validated @NotBlank String uid) {
+    public SseEmitter createConnect(@RequestHeader @Validated @NotBlank(message = "uid不能数为空") String uid) {
         return sseService.createSse(uid);
     }
 
     @CrossOrigin
     @GetMapping("/close")
-    public Resp closeConnect(@RequestHeader @Validated @NotBlank String uid) {
+    public Resp closeConnect(@RequestHeader @Validated @NotBlank(message = "uid不能数为空") String uid) {
         return sseService.closeSse(uid);
     }
 
     @CrossOrigin
     @PostMapping("/chat")
-    public Resp sseChat(@RequestBody @Validated ChatRequest chatRequest, @RequestHeader @Validated @NotBlank String uid) {
+    public Resp sseChat(@RequestBody @Validated ChatRequest chatRequest,
+                        @RequestHeader @Validated @NotBlank(message = "uid不能数为空") String uid) {
         return sseService.sseChat(uid, chatRequest);
     }
 
