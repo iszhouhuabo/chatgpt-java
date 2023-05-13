@@ -2,30 +2,27 @@ version: '3'
 
 services:
   chatgpt-java:
-    image: zhouhuabo/chatgpt-java:v1.1
-    container_name: chatgpt-java
+    image: zhouhuabo/tl-chatgpt-java:0.1
+    container_name: tl-chatgpt-java
     ports:
-      - 8000:18080
+      - 8000:8080
     command: sh -c "java -jar /work/app.jar"
     environment:
       MAX_TOKENS: 4096
       TEMPERATURE: 0.9
+      API_KEY: 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
 
-      CONTENT: Louye-ChatCPT
-      AUTH_KEY: louyezhou
-      FREE_API_KEY:
-      NO_AUTH_CONTENT: apikey 无效
     networks:
       main:
         aliases:
-          - chatgpt-java
-  app:
-    image: zhouhuabo/chatgpt-web:v1.1
-    ports:
-      - 80:80
-    networks:
-      main:
-        aliases:
-          - chatgpt-web
+          - tl-chatgpt-java
+#  app:
+#    image: zhouhuabo/chatgpt-web:v1.1
+#    ports:
+#      - 80:80
+#    networks:
+#      main:
+#        aliases:
+#          - chatgpt-web
 networks:
   main:

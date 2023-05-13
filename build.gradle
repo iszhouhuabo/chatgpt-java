@@ -1,6 +1,6 @@
 buildscript {
     project.ext {
-        bootVersion = '2.0.4.RELEASE'
+        bootVersion = '2.7.11'
     }
 
 
@@ -11,6 +11,7 @@ buildscript {
     }
 
     dependencies {
+//        classpath "org.springframework.boot:spring-boot-gradle-plugin:3.0.6"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${project.bootVersion}"
         classpath "org.springframework.cloud:spring-cloud-contract-gradle-plugin:2.0.1.RELEASE"
         classpath "org.flywaydb:flyway-gradle-plugin:5.0.7"
@@ -21,7 +22,6 @@ apply plugin: "idea"
 apply plugin: "org.springframework.boot"
 apply plugin: "io.spring.dependency-management"
 apply plugin: "groovy"
-apply plugin: 'maven'
 apply plugin: 'maven-publish'
 apply plugin: 'jacoco'
 
@@ -33,37 +33,37 @@ repositories {
     }
 }
 
-sourceCompatibility = 11
+sourceCompatibility = 17
 
 ext {
     springCloudVersion = 'Finchley.SR1'
 }
 
 dependencies {
-    compile('org.jsoup:jsoup:1.15.3')
-    compile('cn.hutool:hutool-all:5.8.11')
-    compile('org.springframework.boot:spring-boot-starter')
-    compile('org.springframework.boot:spring-boot-starter-websocket')
-    compile('org.springframework.boot:spring-boot-starter-web')
-
-    compile('org.springframework.boot:spring-boot-devtools')
-    compile('org.json:json:20220320')
-    compile('io.jsonwebtoken:jjwt:0.9.0')
-    compile('com.alibaba:fastjson:1.2.67_noneautotype2')
-    compile('com.unfbx:chatgpt-java:1.0.13') {
+    implementation('org.jsoup:jsoup:1.15.3')
+    implementation('cn.hutool:hutool-all:5.8.11')
+    implementation('org.springframework.boot:spring-boot-starter')
+    implementation('org.springframework.boot:spring-boot-starter-websocket')
+    implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation('org.springframework.boot:spring-boot-devtools')
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation('org.json:json:20220320')
+    implementation('io.jsonwebtoken:jjwt:0.9.0')
+    implementation('com.alibaba:fastjson:1.2.67_noneautotype2')
+    implementation('com.unfbx:chatgpt-java:1.0.13') {
         exclude group: 'org.slf4j', module: 'slf4j-api'
         exclude group: 'org.slf4j', module: 'slf4j-simple'
     }
-    compile('com.squareup.okhttp3:okhttp:3.14.9')
-
+    implementation('com.squareup.okhttp3:okhttp:3.14.9')
     implementation("com.google.guava:guava:31.1-jre")
-    compile 'commons-io:commons-io:2.7'
-    compile 'org.apache.commons:commons-lang3:3.7'
-    
+    implementation 'commons-io:commons-io:2.7'
+    implementation 'org.apache.commons:commons-lang3:3.7'
+    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+    implementation 'com.baomidou:mybatis-plus-boot-starter:3.5.3.1'
+    implementation 'mysql:mysql-connector-java:8.0.28'
+
     annotationProcessor 'org.projectlombok:lombok:1.18.20'
     compileOnly 'org.projectlombok:lombok:1.18.20'
-
-    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
 
     testImplementation('org.springframework.boot:spring-boot-starter-test')
 
@@ -77,4 +77,3 @@ dependencyManagement {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
 }
-

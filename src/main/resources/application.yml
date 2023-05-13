@@ -1,9 +1,23 @@
 server:
   port: 8080
 
+# DataSource Config
 spring:
-  resources:
-    static-locations: classpath:/static/, classpath:/templates/
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/tl
+    #    url: jdbc:mysql://localhost:3306/tl?useAffectedRows=true&allowMultiQueries=true&characterEncoding=utf8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&autoReconnect=true&failOverReadOnly=false&maxReconnects=10
+    username: root
+    password: root
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+#  sql:
+#    init:
+#      schema-locations: classpath:db/schema-h2.sql
+#      data-locations: classpath:db/data-h2.sql
+#      mode: always
 
 
 # chatgpt 设置
@@ -20,3 +34,4 @@ chatgpt:
   api_host: https://api.openai.com/
   # 是否使用内置 key
   use_internal_key: ${USE_INTERNAL_KEY:true}
+  train_file: ${TRAIN_FILE:/Users/zhouhuabo/tmp/}

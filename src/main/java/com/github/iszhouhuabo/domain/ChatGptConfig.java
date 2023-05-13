@@ -38,4 +38,5 @@ public class ChatGptConfig {
     private Double temperature;
     private String apiHost;
     private boolean useInternalKey = false;
+    private String trainFile;
 }
