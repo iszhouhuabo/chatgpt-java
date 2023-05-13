@@ -46,24 +46,24 @@ public class OpenAiChatStreamSseListener extends EventSourceListener {
     @Override
     public void onEvent(@NotNull EventSource eventSource, String id, String type, @NotNull String data) {
         log.info(data);
-        tokens += 1;
+        this.tokens += 1;
         if (GPT_MSG_END.equals(data)) {
-            sseEmitter.send(SseEmitter.event()
+            this.sseEmitter.send(SseEmitter.event()
                     .id("[TOKENS]")
-                    .data(tokens())
+                    .data(this.tokens())
                     .reconnectTime(3000));
-            sseEmitter.send(SseEmitter.event()
+            this.sseEmitter.send(SseEmitter.event()
                     .id(GPT_MSG_END)
                     .data(GPT_MSG_END)
                     .reconnectTime(3000));
             // 传输完成后自动关闭sse
-            sseEmitter.complete();
+            this.sseEmitter.complete();
             return;
         }
         ObjectMapper mapper = new ObjectMapper();
         ChatCompletionResponse completionResponse = mapper.readValue(data, ChatCompletionResponse.class); // 读取Json
         try {
-            sseEmitter.send(SseEmitter.event()
+            this.sseEmitter.send(SseEmitter.event()
                     .id(completionResponse.getId())
                     .data(completionResponse.getChoices().get(0).getDelta())
                     .reconnectTime(3000));
@@ -76,7 +76,7 @@ public class OpenAiChatStreamSseListener extends EventSourceListener {
 
     @Override
     public void onClosed(@NotNull EventSource eventSource) {
-        log.info("流式输出返回值总共{}tokens", tokens() - 2);
+        log.info("流式输出返回值总共{}tokens", this.tokens() - 2);
         log.debug("OpenAI关闭sse连接...");
     }
 
@@ -89,9 +89,9 @@ public class OpenAiChatStreamSseListener extends EventSourceListener {
         }
         ResponseBody body = response.body();
         if (Objects.nonNull(body)) {
-            log.error("OpenAI sse连接异常data：{}，异常：{}", body.string(), t.getMessage());
+            log.error("OpenAI sse连接异常data：{}", body.string(), t);
         } else {
-            log.error("OpenAI sse连接异常data：{}，异常：{}", response, t.getMessage());
+            log.error("OpenAI sse连接异常data：{}", response, t);
         }
         eventSource.cancel();
     }
@@ -102,7 +102,7 @@ public class OpenAiChatStreamSseListener extends EventSourceListener {
      * @return token
      */
     public long tokens() {
-        return tokens;
+        return this.tokens;
     }
 }
 

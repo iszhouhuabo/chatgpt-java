@@ -76,9 +76,9 @@ public class BuildAIController {
                 this.buildAIService.lambdaQuery().like(StrUtil.isNotBlank(name), BuildBot::getName, name).list());
     }
 
-    @PostMapping("add")
+    @PostMapping(value = {"add", "update"})
     public Resp add(@RequestBody @Validated BuildBot bot) {
-        return Resp.ok().data(this.buildAIService.save(bot));
+        return Resp.ok().data(this.buildAIService.saveOrUpdate(bot));
     }
 
     @DeleteMapping("del/{id}")

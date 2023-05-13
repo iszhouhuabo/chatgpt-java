@@ -2,27 +2,40 @@ version: '3'
 
 services:
   chatgpt-java:
-    image: zhouhuabo/tl-chatgpt-java:0.1
+    image: zhouhuabo/tl-chatgpt-java:0.2
     container_name: tl-chatgpt-java
     ports:
-      - 8000:8080
+      - "8000:8080"
     command: sh -c "java -jar /work/app.jar"
     environment:
       MAX_TOKENS: 4096
       TEMPERATURE: 0.9
-      API_KEY: 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
+      API_KEY: YOU_KEYS
 
     networks:
       main:
         aliases:
           - tl-chatgpt-java
-#  app:
-#    image: zhouhuabo/chatgpt-web:v1.1
-#    ports:
-#      - 80:80
-#    networks:
-#      main:
-#        aliases:
-#          - chatgpt-web
+  #  app:
+  #    image: zhouhuabo/chatgpt-web:v1.1
+  #    ports:
+  #      - 80:80
+  #    networks:
+  #      main:
+  #        aliases:
+  #          - chatgpt-web
+
+  mysql:
+    image: mysql:8.0 #镜像名称以及版本
+    restart: always #重启docker后该容器也重启
+    container_name: mysql_tl #容器名称
+    environment:
+      MYSQL_ROOT_PASSWORD: root #指定用户密码
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306" #本地端口号与容器内部端口号
+    volumes: #指定挂载目录
+      - /usr/etc/mysql/data:/var/lib/mysql
+      - /usr/etc/mysql/config/my.cnf:/etc/mysql/my.cnf
 networks:
   main:

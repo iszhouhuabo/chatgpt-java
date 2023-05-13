@@ -19,6 +19,10 @@ public class MessageUtils {
             // key被封了
             return "[502] GPT官网网络不稳定, 请刷新后重试, 或者重发消息!";
         }
+        if (StrUtil.contains(msgResult, "invalid_api_key")) {
+            // key失效了
+            return "[502] Key 失效了!";
+        }
         if (StrUtil.contains(msgResult, "API KEYS 不能为空")) {
             // 没有 kye
             return "[404] 网站未开启内置共享KEY模式, 请在设置中添加您自己的 API KEY, 服务器不会记录该信息!";
