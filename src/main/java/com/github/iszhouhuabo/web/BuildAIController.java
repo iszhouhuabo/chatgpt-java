@@ -67,7 +67,10 @@ public class BuildAIController {
 
     private String getFileExtension(MultipartFile file) {
         String originalFileName = file.getOriginalFilename();
-        return originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
+        if (originalFileName != null) {
+            return originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
+        }
+        throw new RuntimeException("文件名不能数为空");
     }
 
     @GetMapping("list")

@@ -5,8 +5,8 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/tl
-    #    url: jdbc:mysql://localhost:3306/tl?useAffectedRows=true&allowMultiQueries=true&characterEncoding=utf8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&autoReconnect=true&failOverReadOnly=false&maxReconnects=10
+    url: jdbc:mysql://${DB_HOST:localhost}:3306/tl?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    #    url: jdbc:mysql://43.153.24.43:3306/tl?useAffectedRows=true&allowMultiQueries=true&characterEncoding=utf8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&autoReconnect=true&failOverReadOnly=false&maxReconnects=10
     username: root
     password: root
   servlet:
@@ -34,4 +34,5 @@ chatgpt:
   api_host: https://api.openai.com/
   # 是否使用内置 key
   use_internal_key: ${USE_INTERNAL_KEY:true}
+  # 训练文件要存储的地方
   train_file: ${TRAIN_FILE:/Users/zhouhuabo/tmp/}

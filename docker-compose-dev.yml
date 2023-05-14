@@ -5,8 +5,8 @@ services:
     image: zhouhuabo/tl-chatgpt-java:0.2
     container_name: tl-chatgpt-java
     volumes: #指定挂载目录
-      - /etc/localtime:/etc/localtime:ro
-      - /data/chatgpt:/work/data
+      #  - /etc/localtime:/etc/localtime:ro
+      - /Users/zhouhuabo/tmp/chatgpt:/work/data
     ports:
       - "8000:8080"
     command: sh -c "java -jar /work/app.jar"
@@ -17,7 +17,6 @@ services:
       API_KEY: YOU_KEYS
       TRAIN_FILE: /work/data
       LOG_PATH: /work/data/logs
-      DB_HOST: mysql_tl # mysql 的网络别名,如果Mysql有单独部署,填ip
 
     networks:
       main:
@@ -42,8 +41,8 @@ services:
     ports:
       - "3306:3306" #本地端口号与容器内部端口号
     volumes: #指定挂载目录
-      - /data/chatgpt/mysql/data:/var/lib/mysql
-      - /data/chatgpt/mysql/config/my.cnf:/etc/mysql/my.cnf
+      - /Users/zhouhuabo/tmp/mysql/data:/var/lib/mysql
+      #- /Users/zhouhuabo/tmp/mysql/config/my.cnf:/etc/mysql/my.cnf
       - /etc/localtime:/etc/localtime:ro # 解决Mysql时区不对问题,使用宿主机的时区
     networks:
       main:

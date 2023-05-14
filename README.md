@@ -28,7 +28,7 @@
 
 ```aidl
 // 构建项目
-gradlew clean build
+./gradlew clean build
 ```
 
 ```shell
