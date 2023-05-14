@@ -5,7 +5,6 @@ import com.unfbx.chatgpt.entity.chat.Message;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -19,7 +18,6 @@ public class ChatRequest {
     private String apiKey;
     @NotNull(message = "聊天消息不能空")
     private List<Message> message;
-    @NotBlank(message = "聊天模型不能为空!")
     private String model;
     @JsonProperty("presence_penalty")
     private double presencePenalty = 0;

@@ -1,5 +1,6 @@
 package com.github.iszhouhuabo.services;
 
+import cn.hutool.core.util.StrUtil;
 import com.github.iszhouhuabo.configrations.LocalCache;
 import com.github.iszhouhuabo.listener.OpenAiChatStreamSseListener;
 import com.github.iszhouhuabo.web.request.ChatRequest;
@@ -89,7 +90,21 @@ public class ChatSseService {
                 .presencePenalty(chatRequest.getPresencePenalty())
                 .temperature(chatRequest.getTemperature())
                 .build();
-        openAiStreamClient.streamChatCompletion(completion, new OpenAiChatStreamSseListener(sseEmitter));
+        this.openAiStreamClient.streamChatCompletion(completion, new OpenAiChatStreamSseListener(sseEmitter));
         return Resp.ok().data(ChatResponse.builder().questionTokens(completion.tokens()).build());
+    }
+
+    public SseEmitter sendToSse(ChatRequest chatRequest) {
+        SseEmitter sseEmitter = new SseEmitter(-1L);
+        OpenAiChatStreamSseListener listener = new OpenAiChatStreamSseListener(sseEmitter);
+        ChatCompletion completion = ChatCompletion
+                .builder()
+                .messages(chatRequest.getMessage())
+                .model(StrUtil.isNotBlank(chatRequest.getModel()) ? chatRequest.getModel() : ChatCompletion.Model.GPT_3_5_TURBO.getName())
+                .presencePenalty(chatRequest.getPresencePenalty())
+                .temperature(chatRequest.getTemperature())
+                .build();
+        this.openAiStreamClient.streamChatCompletion(completion, listener);
+        return sseEmitter;
     }
 }

@@ -1,6 +1,7 @@
 package com.github.iszhouhuabo.configrations;
 
 import com.github.iszhouhuabo.domain.ChatGptConfig;
+import com.unfbx.chatgpt.OpenAiClient;
 import com.unfbx.chatgpt.OpenAiStreamClient;
 import com.unfbx.chatgpt.function.KeyRandomStrategy;
 import com.unfbx.chatgpt.interceptor.OpenAILogger;
@@ -24,10 +25,21 @@ public class InitStreamClient {
     public OpenAiStreamClient openAiStreamClient() {
         return OpenAiStreamClient
                 .builder()
-                .apiHost(chatGptConfig.getApiHost())
-                .apiKey(chatGptConfig.getApiKey())
+                .apiHost(this.chatGptConfig.getApiHost())
+                .apiKey(this.chatGptConfig.getApiKey())
                 .keyStrategy(new KeyRandomStrategy())
-                .okHttpClient(okHttpClient())
+                .okHttpClient(this.okHttpClient())
+                .build();
+    }
+
+    @Bean
+    public OpenAiClient openAiClient() {
+        return OpenAiClient
+                .builder()
+                .apiHost(this.chatGptConfig.getApiHost())
+                .apiKey(this.chatGptConfig.getApiKey())
+                .keyStrategy(new KeyRandomStrategy())
+                .okHttpClient(this.okHttpClient())
                 .build();
     }
 

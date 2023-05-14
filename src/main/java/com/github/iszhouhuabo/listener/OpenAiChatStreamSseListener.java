@@ -45,7 +45,7 @@ public class OpenAiChatStreamSseListener extends EventSourceListener {
     @SneakyThrows
     @Override
     public void onEvent(@NotNull EventSource eventSource, String id, String type, @NotNull String data) {
-        log.info(data);
+        //log.info(data);
         this.tokens += 1;
         if (GPT_MSG_END.equals(data)) {
             this.sseEmitter.send(SseEmitter.event()

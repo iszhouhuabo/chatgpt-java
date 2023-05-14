@@ -30,6 +30,7 @@ public class BuildBot {
     private int isTrain;
     // 生成的微调文件地址
     private String fineTuningFile;
+    private String trainModelId;
     private LocalDateTime trainTime;
 
     private LocalDateTime createTime;

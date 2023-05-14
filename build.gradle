@@ -64,6 +64,7 @@ dependencies {
     implementation 'org.apache.poi:poi-ooxml:4.1.2'
 
     annotationProcessor 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     compileOnly 'org.projectlombok:lombok:1.18.20'
 
     testImplementation('org.springframework.boot:spring-boot-starter-test')
