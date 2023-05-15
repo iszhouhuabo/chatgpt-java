@@ -1,14 +1,20 @@
 package com.github.iszhouhuabo.services;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.iszhouhuabo.domain.BuildBot;
 import com.github.iszhouhuabo.domain.ChatGptConfig;
+import com.github.iszhouhuabo.domain.FineTuneData;
 import com.github.iszhouhuabo.domain.TrainData;
 import com.github.iszhouhuabo.mapper.BuildBotMapper;
+import com.github.iszhouhuabo.mapper.FineTuneMapper;
 import com.github.iszhouhuabo.web.response.Resp;
+import com.unfbx.chatgpt.OpenAiClient;
+import com.unfbx.chatgpt.entity.files.UploadFileResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +25,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 /**
+ * 构建机器人
+ *
  * @author louye
  */
 @Service
@@ -26,21 +34,28 @@ import java.util.concurrent.ExecutionException;
 @RequiredArgsConstructor
 public class BuildAIService extends ServiceImpl<BuildBotMapper, BuildBot> {
     private final ChatGptConfig chatGptConfig;
+    private final OpenAiClient openAiClient;
+    private final FineTuneMapper fineTuneMapper;
 
-    public Resp train(String id) {
+    /**
+     * 开始微调模型,收费 api key 才能使用!!!
+     *
+     * @param id 生成的机器人id
+     * @return 结果, 异步
+     */
+    public Resp train(final String id) {
         // openai api fine_tunes.follow -i ft-zMZcY5YHTMRY5lxQ64JIhlJI
         // openai api fine_tunes.follow -i ft-pBNDDU4PR90DS8LOsyJu10x0
-
-        BuildBot bot = this.getById(id);
+        final BuildBot bot = this.getById(id);
         if (bot == null) {
             return Resp.fail().msg("机器人不存在!");
         }
-        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
-            String fineTuningFile = this.chatGptConfig.getTrainFile() + "fineTuningFile/";
+        final CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+            final String fineTuningFile = this.chatGptConfig.getTrainFile() + "fineTuningFile/";
             if (!FileUtil.isDirectory(new File(fineTuningFile))) {
                 FileUtil.mkdir(fineTuningFile);
             }
-            List<TrainData> train = ExcelUtil.getReader(this.chatGptConfig.getTrainFile() + bot.getTrainFile()).readAll(TrainData.class);
+            final List<TrainData> train = ExcelUtil.getReader(this.chatGptConfig.getTrainFile() + bot.getTrainFile()).readAll(TrainData.class);
             FileUtil.writeUtf8Lines(train,
                     fineTuningFile + StrUtil.subBefore(bot.getTrainFile(), ".", false) + ".jsonl");
             return StrUtil.subBefore(bot.getTrainFile(), ".", false) + ".jsonl";
@@ -62,21 +77,34 @@ public class BuildAIService extends ServiceImpl<BuildBotMapper, BuildBot> {
         try {
             // 同步等,实际上没必要要异步,但是想玩玩
             future.get();
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (final InterruptedException | ExecutionException e) {
             log.error("训练文件转换失败!", e);
             return Resp.ok().msg("生成训练文件失败! 错误消息: {}", e);
         }
 
         if (future.isDone() && !future.isCompletedExceptionally()) {
-
+            final UploadFileResponse uploadFileResponse = this.openAiClient.uploadFile(new File(bot.getFineTuningFile()));
+            final long tid = UUID.randomUUID().timestamp();
+            this.fineTuneMapper.insert(
+                    FineTuneData.builder()
+                            .id(tid)
+                            .trainingId(uploadFileResponse.getId())
+                            .createdAt(DateUtil.date(uploadFileResponse.getCreated_at()))
+                            .build());
+            this.lambdaUpdate().set(BuildBot::getTrainModelId, tid).eq(BuildBot::getId, id);
         }
 
         return Resp.ok().msg("机器人已在后台训练中...");
 
     }
 
-    public int del(String id) {
-        BuildBot delInfo = this.getById(id);
+    /**
+     * 删除机器人,包含删除文件、格式化之后的微调文件
+     *
+     * @param id 机器人id
+     */
+    public int del(final String id) {
+        final BuildBot delInfo = this.getById(id);
         if (delInfo == null) {
             return 0;
         }
@@ -88,5 +116,22 @@ public class BuildAIService extends ServiceImpl<BuildBotMapper, BuildBot> {
             FileUtil.del(delInfo.getFineTuningFile());
         }
         return 1;
+    }
+
+    /**
+     * 查看进度
+     *
+     * @param id 机器人id
+     */
+    public Resp showTrainProgress(String id) {
+        String fineTuneId = this.getBaseMapper().getFineTuneId(id);
+        if (StrUtil.isBlank(fineTuneId)) {
+            return Resp.fail().msg("机器人对应的:fine-tune是空的,检查是否开启训练?");
+        }
+        try {
+            return Resp.ok().msg("获取成功").data(this.openAiClient.fineTuneEvents(fineTuneId));
+        } catch (Exception e) {
+            return Resp.fail().data(e.getMessage());
+        }
     }
 }

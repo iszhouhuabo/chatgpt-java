@@ -99,4 +99,10 @@ public class BuildAIController {
     public Resp train(@RequestParam @Validated @NotBlank(message = "id不能数为空") String id) {
         return Resp.ok().data(this.buildAIService.train(id));
     }
+
+    @GetMapping("progress")
+    @CrossOrigin
+    public Resp showTrainProgress(@RequestParam @Validated @NotBlank(message = "ID不能为空!") String id) {
+        return this.buildAIService.showTrainProgress(id);
+    }
 }
