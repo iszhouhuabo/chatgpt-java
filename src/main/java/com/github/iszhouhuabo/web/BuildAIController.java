@@ -105,4 +105,12 @@ public class BuildAIController {
     public Resp showTrainProgress(@RequestParam @Validated @NotBlank(message = "ID不能为空!") String id) {
         return this.buildAIService.showTrainProgress(id);
     }
+
+    @GetMapping("bot/type")
+    @CrossOrigin
+    public Resp botType() {
+        return Resp.ok().data(this.buildAIService.lambdaQuery()
+                .select(BuildBot::getType).list());
+    }
+
 }

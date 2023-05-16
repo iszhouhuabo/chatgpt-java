@@ -2,8 +2,9 @@ package com.github.iszhouhuabo.services;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.UUID;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import cn.hutool.poi.excel.ExcelUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.iszhouhuabo.domain.BuildBot;
@@ -15,14 +16,15 @@ import com.github.iszhouhuabo.mapper.FineTuneMapper;
 import com.github.iszhouhuabo.web.response.Resp;
 import com.unfbx.chatgpt.OpenAiClient;
 import com.unfbx.chatgpt.entity.files.UploadFileResponse;
+import com.unfbx.chatgpt.entity.fineTune.FineTune;
+import com.unfbx.chatgpt.entity.fineTune.FineTuneResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.*;
 
 /**
  * 构建机器人
@@ -83,17 +85,53 @@ public class BuildAIService extends ServiceImpl<BuildBotMapper, BuildBot> {
         }
 
         if (future.isDone() && !future.isCompletedExceptionally()) {
-            final UploadFileResponse uploadFileResponse = this.openAiClient.uploadFile(new File(bot.getFineTuningFile()));
-            final long tid = UUID.randomUUID().timestamp();
+            final UploadFileResponse uploadFileResponse = this.openAiClient.uploadFile(new File(this.chatGptConfig.getTrainFile() + "fineTuningFile/" + bot.getFineTuningFile()));
+            log.info(JSONUtil.toJsonStr(uploadFileResponse));
+            final long tid = IdUtil.getSnowflakeNextId();
             this.fineTuneMapper.insert(
                     FineTuneData.builder()
                             .id(tid)
                             .trainingId(uploadFileResponse.getId())
                             .createdAt(DateUtil.date(uploadFileResponse.getCreated_at()))
                             .build());
-            this.lambdaUpdate().set(BuildBot::getTrainModelId, tid).eq(BuildBot::getId, id);
-        }
+            this.lambdaUpdate().set(BuildBot::getTrainModelId, tid).eq(BuildBot::getId, id).update();
 
+            // 开始训练
+            FineTune fineTune = FineTune.builder()
+                    .trainingFile(uploadFileResponse.getId())
+                    .suffix("tl-ds")
+                    .model(FineTune.Model.ADA.getName())
+                    .build();
+            FineTuneResponse fineTuneResponse = this.openAiClient.fineTune(fineTune);
+            log.info(JSONUtil.toJsonStr(fineTuneResponse));
+            this.fineTuneMapper.updateById(FineTuneData.builder()
+                    .id(tid)
+                    .status(fineTuneResponse.getStatus())
+                    .fineTunedModel(fineTuneResponse.getFineTunedModel())
+                    .organizationId(fineTuneResponse.getOrganizationId())
+                    .baseModel(fineTuneResponse.getModel())
+                    .modelId(fineTuneResponse.getId())
+                    .updatedAt(DateUtil.date())
+                    .build());
+
+            // 开启定时查询
+            ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+            Runnable task = () -> {
+                FineTuneResponse checkSts = this.openAiClient.retrieveFineTune(fineTuneResponse.getId());
+                log.info("定时获取训练状态--> {}", JSONUtil.toJsonStr(checkSts));
+                if ("succeeded".equalsIgnoreCase(checkSts.getStatus())) {
+                    this.fineTuneMapper.updateById(FineTuneData.builder()
+                            .id(tid)
+                            .status(checkSts.getStatus())
+                            .fineTunedModel(checkSts.getFineTunedModel())
+                            .build());
+                    executor.shutdown();
+                }
+            };
+            // 延迟 1 分钟执行,每次间隔5分钟...
+            executor.scheduleAtFixedRate(task, 1, 5, TimeUnit.MINUTES);
+            executor.schedule(executor::shutdown, 30, TimeUnit.MINUTES);
+        }
         return Resp.ok().msg("机器人已在后台训练中...");
 
     }
