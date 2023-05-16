@@ -3,6 +3,7 @@ package com.github.iszhouhuabo.web;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.iszhouhuabo.domain.BuildBot;
 import com.github.iszhouhuabo.domain.ChatGptConfig;
 import com.github.iszhouhuabo.services.BuildAIService;
@@ -109,8 +110,7 @@ public class BuildAIController {
     @GetMapping("bot/type")
     @CrossOrigin
     public Resp botType() {
-        return Resp.ok().data(this.buildAIService.lambdaQuery()
-                .select(BuildBot::getType).list());
+        return Resp.ok().data(this.buildAIService.listMaps(new QueryWrapper<BuildBot>().select("distinct type")));
     }
 
 }
